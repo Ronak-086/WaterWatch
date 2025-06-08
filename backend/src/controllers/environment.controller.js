@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 
 export const createEnvironment = async (req,res) => {
   try {
-    const {userId,name,location}=req.body;
+    const {userId,name,location,status}=req.body;
     if(!userId || !name || !location){
       return res.status(400).json({
         success:false,
@@ -17,7 +17,7 @@ export const createEnvironment = async (req,res) => {
         message: "User not found.",
       });
     }
-    const environment=await Environment.create({user:userId,name,location});
+    const environment=await Environment.create({user:userId,name,location,status});
     user.environments.push(environment._id);
     await user.save();
     return res.status(201).json({
@@ -27,6 +27,37 @@ export const createEnvironment = async (req,res) => {
       environments: user.environments,
     });
   } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+export const getEnvironments = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Environment ID is required.",
+      });
+    }
+
+    const user = await User.findById(id).populate("environments");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Environment updated successfully.",
+      environments:user.environments,
+    });
+  } catch (err) {
+    console.error("Error in updateEnvironment:", err);
     return res.status(500).json({
       success: false,
       message: err.message,

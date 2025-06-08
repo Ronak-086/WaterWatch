@@ -31,7 +31,15 @@ const environmentSchema = new mongoose.Schema({
   ],
   recommandations:{
     type:[String]
-  }
+  },
+  status: {
+  type: String,
+  enum: {
+    values: ["safe", "unsafe"],
+    message: "Status must be either 'safe' or 'unsafe'"
+  },
+  default: "safe"
+}
 });
 
 export const Environment = mongoose.model("Environment", environmentSchema);

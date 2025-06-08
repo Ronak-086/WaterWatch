@@ -5,6 +5,7 @@ import { userRouter } from "./src/routes/user.routes.js";
 import { environmentRouter } from "./src/routes/environment.routes.js";
 import { waterReadingRouter } from "./src/routes/waterReading.routes.js";
 import { recommandationsRouter } from "./src/routes/recommandations.routes.js";
+import cors from "cors";
 dotenv.config();
 //server
 const server = e();
@@ -12,11 +13,16 @@ const server = e();
 connectToDB();
 //middleware
 server.use(e.json());
+server.use(cors());
+server.use((req,res,next)=>{
+  console.log(req.url);
+  next();
+})
 //routes
-server.use("/user", userRouter);
-server.use("/environment", environmentRouter);
-server.use("/waterReadings", waterReadingRouter);
-server.use("/recommandations", recommandationsRouter);
+server.use("/api/user", userRouter);
+server.use("/api/environment", environmentRouter);
+server.use("/api/waterReadings", waterReadingRouter);
+server.use("/api/recommandations", recommandationsRouter);
 const PORT = process.env.PORT;
 server.listen(PORT, () => {
   console.log("Server is listening.");
