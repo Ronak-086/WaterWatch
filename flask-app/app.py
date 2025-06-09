@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify
 import pickle
-
+from flask_cors import CORS
 app = Flask(__name__)
 with open('water_potability_rf_model.pickle', 'rb') as f:
     model = pickle.load(f)
 FEATURES = ["Solids", "Turbidity", "Chloramines", "ph", "Trihalomethanes", "Hardness", "Sulfate", "Conductivity", "Organic_carbon"]
-
+CORS(app);
 @app.route('/')
 def home():
     return f"Model loaded and ready for prediction"

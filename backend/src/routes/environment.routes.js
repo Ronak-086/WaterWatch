@@ -4,4 +4,4 @@ export const environmentRouter=e.Router();
 environmentRouter.get('/getEnvironments/:id',getEnvironments);
 environmentRouter.post('/createEnvironment',createEnvironment);
 environmentRouter.post('/deleteEnvironment',deleteEnvironment);
-environmentRouter.post('/updateEnvironment/:id',updateEnvironment);
+environmentRouter.put('/updateEnvironment/:id',updateEnvironment);

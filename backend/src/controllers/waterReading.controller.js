@@ -3,7 +3,8 @@ import { WaterReading } from "../models/waterReading.model.js";
 
 export const getWaterReadings = async (req, res) => {
   try {
-    const readings = await WaterReading.find().populate("environment");
+    const {id}=req.params;
+    const readings = await WaterReading.find({environment:id}).populate("environment");
     return res.status(200).json({
       success: true,
       data: readings,

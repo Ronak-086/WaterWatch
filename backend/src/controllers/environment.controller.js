@@ -1,6 +1,7 @@
 import { Environment } from "../models/environment.model.js";
 import { User } from "../models/user.model.js";
-
+import { GoogleGenAI } from "@google/genai";
+const ai = new GoogleGenAI({ apiKey: "AIzaSyALsvBG78LzOng3etRkOupOefpNMLWeAu0" });
 export const createEnvironment = async (req,res) => {
   try {
     const {userId,name,location,status}=req.body;
@@ -67,7 +68,7 @@ export const getEnvironments = async (req, res) => {
 export const updateEnvironment = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, location } = req.body;
+    const { status, readings } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -75,7 +76,6 @@ export const updateEnvironment = async (req, res) => {
         message: "Environment ID is required.",
       });
     }
-
     const environment = await Environment.findById(id);
     if (!environment) {
       return res.status(404).json({
@@ -84,8 +84,26 @@ export const updateEnvironment = async (req, res) => {
       });
     }
 
-    if (name) environment.name = name;
-    if (location) environment.location = location;
+    if (status) environment.status = status;
+
+    if (readings) {
+     const prompt = `You are a water quality expert. Based on these water sample readings, provide a concise 20-word answer listing:
+
+1. Parameters exceeding safe drinking water limits.
+2. Practical suggestions to improve each unsafe parameter.
+3. General recommendations to improve overall water quality.
+
+Give only the answer, no greetings or extra explanation.
+
+Water Readings: ${JSON.stringify(readings, null, 2)}`;
+
+      const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
+      const output = response.text;
+      environment.recommandations.push(output);
+    }
 
     await environment.save();
 

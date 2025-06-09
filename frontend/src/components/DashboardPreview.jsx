@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function DashboardPreview() {
   return (
     <section className="bg-blue-0 py-16">
@@ -18,12 +20,12 @@ export default function DashboardPreview() {
           <p className="text-green-700 text-lg">
             Track real-time stats, compare water bodies, and view historical trends—empowering communities to act early.
           </p>
-          <a
-            href="#dashboard"
+          <Link
+            to="/dashboard"
             className="inline-block mt-4 px-6 py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-400 transition"
           >
             Explore Dashboard
-          </a>
+          </Link>
         </div>
 
       </div>
