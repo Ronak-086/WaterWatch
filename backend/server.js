@@ -23,6 +23,9 @@ server.use("/api/user", userRouter);
 server.use("/api/environment", environmentRouter);
 server.use("/api/waterReadings", waterReadingRouter);
 server.use("/api/recommandations", recommandationsRouter);
+server.get("/",(req,res)=>{
+  res.send("welcome to water watch api")
+})
 const PORT = process.env.PORT;
 server.listen(PORT, () => {
   console.log("Server is listening.");
