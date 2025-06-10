@@ -9,10 +9,10 @@ const parameters = [
   { key: 'ph', label: 'pH', unit: '', tip: 'Measure the pH level using a portable pH meter or pH test strips dipped into the waterbody.', validate: val => val >= 0 && val <= 14, errorMsg: 'Enter a valid pH between 0 and 14' },
   { key: 'Hardness', label: 'Hardness (mg/L)', unit: 'mg/L', tip: 'Test water hardness using a hardness test kit or digital water tester.', validate: val => val > 0, errorMsg: 'Hardness must be a positive number' },
   { key: 'Solids', label: 'Total Dissolved Solids (TDS)', unit: 'ppm', tip: 'Use a TDS meter to measure solids dissolved in water.', validate: val => val > 0, errorMsg: 'TDS must be a positive number' },
-  { key: 'Chloramines', label: 'Chloramines (mg/L)', unit: 'mg/L', tip: 'Measure chloramines using a water test kit specific for disinfectants.', validate: val => val >= 0, errorMsg: 'Chloramines cannot be negative' },
+  { key: 'Chloramines', label: 'Chloramines (ppm)', unit: 'ppm', tip: 'Measure chloramines using a water test kit specific for disinfectants.', validate: val => val >= 0, errorMsg: 'Chloramines cannot be negative' },
   { key: 'Sulfate', label: 'Sulfate (mg/L)', unit: 'mg/L', tip: 'Use sulfate test strips or kits to check sulfate concentration.', validate: val => val >= 0, errorMsg: 'Sulfate cannot be negative' },
   { key: 'Conductivity', label: 'Conductivity (µS/cm)', unit: 'µS/cm', tip: 'Use a conductivity meter to measure water’s ability to conduct electricity.', validate: val => val > 0, errorMsg: 'Conductivity must be positive' },
-  { key: 'Organic_carbon', label: 'Organic Carbon (mg/L)', unit: 'mg/L', tip: 'Test organic carbon using water quality test kits or lab analysis.', validate: val => val >= 0, errorMsg: 'Organic carbon cannot be negative' },
+  { key: 'Organic_carbon', label: 'Organic Carbon (ppm)', unit: 'ppm', tip: 'Test organic carbon using water quality test kits or lab analysis.', validate: val => val >= 0, errorMsg: 'Organic carbon cannot be negative' },
   { key: 'Trihalomethanes', label: 'Trihalomethanes (µg/L)', unit: 'µg/L', tip: 'Measure THMs via specialized water analysis kits or labs.', validate: val => val >= 0, errorMsg: 'Trihalomethanes cannot be negative' },
   { key: 'Turbidity', label: 'Turbidity (NTU)', unit: 'NTU', tip: 'Measure turbidity with a turbidity meter or Secchi disk.', validate: val => val >= 0, errorMsg: 'Turbidity cannot be negative' },
 ]
@@ -23,6 +23,9 @@ const WaterBodies = () => {
   const [step, setStep] = useState(0)
   const [values, setValues] = useState({})
   const [error, setError] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [newEnv, setNewEnv] = useState({ name: '', location: '' ,userId:"68452e3a837ff10bf4c35b0f"})
+  const [formError, setFormError] = useState('')
 
   useEffect(() => {
     getEnvironments()
@@ -78,7 +81,6 @@ const WaterBodies = () => {
           prediction: isSafe,
           ...predictionPayload,
         })
-
         setTimeout(() => {
           window.location.reload()
         }, 5000)
@@ -109,13 +111,75 @@ const WaterBodies = () => {
     }
   }
 
+  const handleAddEnvironment = async () => {
+    if (newEnv.name.length < 3 || newEnv.name.length > 50) {
+      setFormError('Name must be 3–50 characters')
+      return
+    }
+    if (!newEnv.location || newEnv.location.length > 100) {
+      setFormError('Location is required and must be under 100 characters')
+      return
+    }
+
+    try {
+      const res = await axios.post('/api/environment/createEnvironment', newEnv)
+      toast.success('Environment added successfully!')
+      setShowAddModal(false)
+      setNewEnv({ name: '', location: '' })
+      getEnvironments()
+    } catch (err) {
+      toast.error('Failed to add environment.')
+      console.error(err)
+    }
+  }
+
   return (
     <section className="flex flex-col">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      <button className="px-5 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white shadow-lg transition-all duration-300 float-right my-2 w-fit self-end">
+      <button
+        onClick={() => setShowAddModal(true)}
+        className="px-5 py-3 rounded-xl font-semibold bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white shadow-lg transition-all duration-300 float-right my-2 w-fit self-end"
+      >
         + Add Environment
       </button>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+          <div className="bg-white rounded-2xl p-6 shadow-xl w-[90%] max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Environment</h2>
+            <input
+              type="text"
+              placeholder="Environment Name"
+              value={newEnv.name}
+              onChange={(e) => setNewEnv({ ...newEnv, name: e.target.value })}
+              className="w-full mb-3 p-3 border rounded-lg"
+            />
+            <input
+              type="text"
+              placeholder="Location"
+              value={newEnv.location}
+              onChange={(e) => setNewEnv({ ...newEnv, location: e.target.value })}
+              className="w-full mb-3 p-3 border rounded-lg"
+            />
+            {formError && <p className="text-red-500 text-sm mb-2">{formError}</p>}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddEnvironment}
+                className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-6 justify-center w-full items-center my-3">
         {currEnvironments &&
@@ -129,9 +193,7 @@ const WaterBodies = () => {
               </h2>
 
               <div className="space-y-4 text-gray-700">
-                <p>
-                  <span className="font-semibold">Location:</span> {env.location}
-                </p>
+                <p><span className="font-semibold">Location:</span> {env.location}</p>
                 <p>
                   <span className="font-semibold">Previous Suggestion:</span>{' '}
                   <span className="text-green-600 font-medium">
@@ -170,14 +232,9 @@ const WaterBodies = () => {
                     Add Water Reading ({step + 1} / {parameters.length})
                   </h3>
 
-                  <label
-                    htmlFor={param.key}
-                    className="block text-lg font-semibold mb-2 text-gray-700"
-                  >
+                  <label htmlFor={param.key} className="block text-lg font-semibold mb-2 text-gray-700">
                     {param.label}{' '}
-                    {param.unit && (
-                      <span className="text-sm text-gray-400">({param.unit})</span>
-                    )}
+                    {param.unit && <span className="text-sm text-gray-400">({param.unit})</span>}
                   </label>
                   <input
                     id={param.key}
