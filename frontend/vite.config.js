@@ -12,7 +12,7 @@ export default defineConfig({
    server: {
     proxy: {
       '/api': {
-        target: 'https://water-watch-si4e.vercel.app/',
+        target: 'https://water-watch-si4e.vercel.app',
         changeOrigin: true,
         secure: false,
       },
