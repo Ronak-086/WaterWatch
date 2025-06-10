@@ -1,7 +1,7 @@
 import { Environment } from "../models/environment.model.js";
 import { User } from "../models/user.model.js";
 import { GoogleGenAI } from "@google/genai";
-const ai = new GoogleGenAI({ apiKey: "AIzaSyALsvBG78LzOng3etRkOupOefpNMLWeAu0" });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export const createEnvironment = async (req,res) => {
   try {
     const {userId,name,location,status}=req.body;
