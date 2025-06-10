@@ -6,7 +6,7 @@ export const EnvironmentContextProvider=({children})=>{
     const [currEnvironments,setCurrenvironments]=useState([]);
     const getEnvironments=async()=>{
         try{
-            const response=await axios.get("/api/environment/getEnvironments/68452e3a837ff10bf4c35b0f");
+            const response=await axios.get("https://water-watch-si4e.vercel.app/api/environment/getEnvironments/68452e3a837ff10bf4c35b0f");
             setCurrenvironments(response.data.environments);
         }catch(err){
             console.log(err);
